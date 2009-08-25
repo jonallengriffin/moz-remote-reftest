@@ -1,0 +1,23 @@
+.container {
+  border: solid black;
+  width: 75%;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 10px;
+}
+
+.title {
+  text-align: center;
+}
+
+.warning {
+  font: red;
+}
+
+#dontshow {
+  display: none;
+}
+
+#tool-remote-reftest {
+  list-style-image: url(chrome://remote-reftest/skin/icon32.png);
+}

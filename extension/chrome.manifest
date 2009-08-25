@@ -1,0 +1,6 @@
+content remote-reftest chrome/content/
+locale remote-reftest en-US chrome/locale/en-US/
+skin remote-reftest classic/1.0 chrome/skin/
+
+overlay chrome://browser/content/browser.xul chrome://remote-reftest/content/reftest-overlay.xul
+overlay chrome://browser/content/browser.xul chrome://remote-reftest/content/fennec-overlay.xul

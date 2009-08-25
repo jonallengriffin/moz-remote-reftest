@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+  "http://www.w3.org/TR/html4/strict.dtd">
+
+<link rel=StyleSheet href="chrome://remote-reftest/skin/remote-reftest-style.css" type="text/css">
+<script src="chrome://remote-reftest/content/test-driver.js"></script>
+
+<html>
+  <head>
+    <title>Start Testing</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="title">Run Graphics Testing</h1>
+      <div class="instructions">
+        Choose a manifest file below to run the tests.  You can choose either a
+        crashtest or reftest manifest file.  When ready, click the "Start" button
+        and the tests will begin automatically.
+      </div>
+      <p>
+      <div class="warning" id="dontshow">
+        That is not a proper manifest file.  Please choose again.
+      </div>
+      <div class="form">
+        <input type="text" id="file-input" size="60"/>
+        <p>
+        Start at test number 
+        <input type="text" id="startnumber" size="5" value="0"/>, run
+        <input type="text" id="chunks" size="5" value="50"/> tests per chunk.
+        <p>
+        <input type="button" value="Start!" onclick="remoteReftestTestDriver.submitForm();"/>
+      </div>
+    </div>
+    <div id="results"></div>
+    <div id="listen"></div>
+  </body>
+</html>

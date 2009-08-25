@@ -1,0 +1,6 @@
+content remote-reftest jar:chrome/reftest.jar!/content/
+locale remote-reftest en-US jar:chrome/reftest-en-US.jar!/locale/en-US/
+skin remote-reftest classic/1.0 jar:chrome/reftest-skin.jar!/skin/
+
+overlay chrome://browser/content/browser.xul chrome://remote-reftest/content/reftest-overlay.xul
+overlay chrome://browser/content/browser.xul chrome://remote-reftest/content/fennec-overlay.xul

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://remote-reftest/skin/remote-reftest-style.css" type="text/css"?>
+<!DOCTYPE overlay SYSTEM "chrome://remote-reftest/locale/remote-reftest-strings.dtd">
+
+<overlay id="fenenc-overlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script src="chrome://remote-reftest/content/reftest-overlay.js"/>
+
+  <vbox id="panel-controls">
+    <toolbarbutton id="tool-remote-reftest" type "radio" group="1"
+                   class="panel-button button-image"
+                   insertbefore="tool-addons"
+                   oncommand="onRemoteReftestMenuCommand(event);"/>
+  </vbox>
+</overlay>

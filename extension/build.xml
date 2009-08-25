@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+
+<!--
+build.xml adapted from Shawn Wilsher's rtse
+(http://shawnwilsher.com/extensions/rtse/)
+ -->
+
+<project name="remote-reftest-test" default="createxpi">
+  <tstamp>
+    <format property="build.number" pattern="yyyyMMdd" offset="-1" unit="hour"/>
+  </tstamp>
+  <property name="build.version" value="0.1.${build.number}"/>
+  <target name="createxpi" depends="createjar">
+    <zip destfile="remotereftest.xpi">
+      <zipfileset dir="" includes="chrome/reftest.jar"/>
+      <zipfileset dir="" includes="chrome/reftest-en-US.jar"/>
+      <zipfileset dir="" includes="chrome/reftest-skin.jar"/>
+      <zipfileset dir="" includes="install.rdf"/>
+      <zipfileset dir="" includes="jar-chrome.manifest" fullpath="chrome.manifest"/>
+    </zip>
+  </target>
+  <target name="createjar">
+    <zip destfile="chrome/reftest.jar">
+      <zipfileset dir="chrome" includes="content/**"/>
+    </zip>
+    <zip destfile="chrome/reftest-en-US.jar">
+      <zipfileset dir="chrome" includes="locale/**"/>
+    </zip>
+    <zip destfile="chrome/reftest-skin.jar">
+      <zipfileset dir="chrome" includes="skin/**"/>
+    </zip>
+  </target>
+</project>

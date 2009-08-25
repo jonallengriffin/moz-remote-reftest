@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE overlay SYSTEM "chrome://remote-reftest/locale/remote-reftest-strings.dtd">
+<overlay id="reftest-overlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script src="chrome://remote-reftest/content/reftest-overlay.js"/>
+
+  <keyset>
+    <key id="open-remote-reftest-test" key="&remote-reftest-test-key;" oncommand="onRemoteReftestMenuCommand(event);"/>
+  </keyset>
+
+  <menupopup id="menu_ToolsPopup">
+    <menuitem key="open-remote-reftest-test" id="remote-reftest-test-menuentry" label="&remote-reftest-menu-entry-label;"
+              insertafter="devToolsSeparator" oncommand="onRemoteReftestMenuCommand(event);"/>
+  </menupopup>
+</overlay>

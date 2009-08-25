@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+  <Description about="urn:mozilla:install-manifest">
+    <em:id>remote-reftest@mozilla.org</em:id>
+    <em:version>1.0</em:version>
+    <em:targetApplication>
+      <Description>
+        <em:id>toolkit@mozilla.org</em:id>
+       <em:minVersion>1.9.0.*</em:minVersion>
+       <em:maxVersion>1.9.3a1pre</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+    <!-- Fennec -->
+    <em:targetApplication>
+      <Description>
+        <em:id>{a23983c0-fd0e-11dc-95ff-0800200c9a66}</em:id>
+        <em:minVersion>1.0a1</em:minVersion>
+        <em:maxVersion>1.0b3pre</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+    <!-- Front End MetaData -->
+    <em:name>Remote Reftest</em:name>
+    <em:description>Run Mozilla reftests over HTTP.</em:description>
+    <em:creator>Jonathan Griffin</em:creator>
+    <em:creator>Clint Talbert</em:creator>
+    <em:creator>L. David Baron</em:creator>
+  </Description>
+</RDF>

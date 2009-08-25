@@ -1,0 +1,5 @@
+<!ENTITY remote-reftest-test-key "r">
+<!ENTITY remote-reftest-menu-entry-label "Remote Reftest Tool">
+<!ENTITY start-testing.title "Start Testing">
+<!ENTITY start-testing.instructions "Use the file browser below to select the manifest file you'd like to use to run tests against this browser.  You can select either a reftest or a crashtest manifest.">
+<!ENTITY start-testing.buttonlabel "Kick Off the Tests!">
