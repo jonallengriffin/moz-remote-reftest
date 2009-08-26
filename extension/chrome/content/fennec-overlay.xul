@@ -8,7 +8,7 @@
   <script src="chrome://remote-reftest/content/reftest-overlay.js"/>
 
   <vbox id="panel-controls">
-    <toolbarbutton id="tool-remote-reftest" type "radio" group="1"
+    <toolbarbutton id="tool-remote-reftest" type="radio" group="1"
                    class="panel-button button-image"
                    insertbefore="tool-addons"
                    oncommand="onRemoteReftestMenuCommand(event);"/>

@@ -60,6 +60,8 @@ const NS_XREAPPINFO_CONTRACTID =
           "@mozilla.org/xre/app-info;1";
 const NS_WINDOW_MEDIATOR = "@mozilla.org/appshell/window-mediator;1";
 
+const EXTENSION_START_URL =
+      "chrome://remote-reftest/content/start-testing.html";
 
 var gLoadTimeout = 0;
 
@@ -76,8 +78,7 @@ var gURLs;
 var gURIUseCounts;
 // Map from URI spec to the canvas rendered for that URI
 var gURICanvases;
-var gParentBrowser = 
-   GetBrowserByUrl("chrome://remote-reftest/content/start-testing.html");
+var gParentBrowser = GetBrowserByUrl(EXTENSION_START_URL);
 var gTestResults;
 var gTotalTests = 0;
 var gState;
@@ -86,7 +87,9 @@ var gFailureTimeout = null;
 var gFailureReason;
 var gCount = 0;
 var gAssertionCount = 0;
-var gManifestCount = 1;
+// The total number of manifest files that need to be read.
+var gManifestCount = 1; 
+// The number of manifest files that have been read.
 var gManifestsRead = 0;
 
 var gIOService;
@@ -115,11 +118,12 @@ var gLogFile = {
                  .createInstance(CI.nsILocalFile);
     this._file.initWithPath(dir);
     this._file.append("results.log");
+    var exists = this._file.exists();
 
     // Make a file output stream and converter to handle it
     this._foStream = CC["@mozilla.org/network/file-output-stream;1"]
                    .createInstance(CI.nsIFileOutputStream);
-    var fileflags = gTestResults.ThisChunkStartTest ?
+    var fileflags = gTestResults.ThisChunkStartTest && exists ?
       0x02 | 0x10 : 0x02 | 0x08 | 0x20;
     this._foStream.init(this._file, fileflags, 0666, 0);
     this._converter = CC["@mozilla.org/intl/converter-output-stream;1"]
@@ -134,15 +138,31 @@ var gLogFile = {
   }
 };
 
-function sendTestResults() {
-  var elm = gParentBrowser.contentDocument.getElementById("listen");
-  elm.setAttribute("extra", JSON.stringify(gTestResults));
-  var evt = gParentBrowser.contentDocument.createEvent("Events");
-  evt.initEvent("dataevent", true, false);
-  elm.dispatchEvent(evt);  
+/**
+ * The current test results are sent back to the extension's start HTML page,
+ * so that they can be retained between reftest window re-openings.  The
+ * results are stored in JSON format in an attribute to a hidden element
+ * on that page, and then a custom event is sent to the page notifying it
+ * that the data has been updated.
+ */
+function SendTestResults() {
+  try {
+    var elm = gParentBrowser.contentDocument.getElementById("listen");
+    elm.setAttribute("data", JSON.stringify(gTestResults));
+    var evt = gParentBrowser.contentDocument.createEvent("Events");
+    evt.initEvent("dataevent", true, false);
+    elm.dispatchEvent(evt);
+  }
+  catch (e) {
+    // user closed the reftest HTML page?
+    gBrowser.contentWindow.close();
+  }  
 }
 
-// Return the browser object which is displaying a given url.
+/**
+ * Return the browser object which is displaying a given url. This is
+ * used to find the browser displaying the extension's start HTML page.
+ */
 function GetBrowserByUrl(url) {
     var wm = CC[NS_WINDOW_MEDIATOR].getService(CI.nsIWindowMediator);
     var browserEnumerator = wm.getEnumerator("navigator:browser");
@@ -166,22 +186,37 @@ function GetBrowserByUrl(url) {
 }
 
 function dumpEx(data) {
-    gLogFile.write(data);
-    var consoleSvc = CC["@mozilla.org/consoleservice;1"]
-                  .getService(CI.nsIConsoleService);
-    consoleSvc.logStringMessage(data);
-    dump(data);
-    
+  try {
     // Log fail and summary info to the reftest HTML page.
-    if (data.indexOf("REFTEST TEST-UNEXPECTED-FAI") == 0 ||
-        data.indexOf("REFTEST INFO") == 0) {
-        var bdoc = gParentBrowser.contentDocument;
-        if (bdoc) {
-            var ldata = bdoc.createElement("p");
-            ldata.innerHTML = data;
-            bdoc.getElementById("results").appendChild(ldata);
+    var bdoc = gParentBrowser.contentDocument;
+    if (bdoc) {
+      if (data.indexOf("REFTEST TEST-UNEXPECTED-FAI") == 0 ||
+        data.indexOf("REFTEST INFO") == 0 ||
+        data.indexOf("EXCEPTION") != -1) {
+          var ldata = bdoc.createElement("p");
+          ldata.innerHTML = data;
+          bdoc.getElementById("results").appendChild(ldata);
+      }
+        
+      if (data.length < 500) {
+        var logdiv = bdoc.getElementById("log");
+        var loglines = logdiv.innerHTML.split("<br>");
+        while (loglines.length > 10) {
+          loglines.shift();
         }
+        loglines.push(data);
+        logdiv.innerHTML = loglines.join("<br>");
+      }
     }
+  }
+  catch (e) {}
+
+  // Write log msg to log file and console.
+  gLogFile.write(data);
+  var consoleSvc = CC["@mozilla.org/consoleservice;1"]
+                .getService(CI.nsIConsoleService);
+  consoleSvc.logStringMessage(data);
+  dump(data);
 }
 
 var gRecycledCanvases = new Array();
@@ -238,6 +273,7 @@ function OnRefTestLoad()
 function StartFirstTest() {
   try {
       if (gManifestCount == gManifestsRead) {
+        // If all of the included manifests have been read, start the tests...
         gTotalTests = gURLs.length;
 
         if (!gTotalTests)
@@ -254,12 +290,13 @@ function StartFirstTest() {
         StartCurrentTest();        
       }
       else {
-        setTimeout(StartFirstTest, 0);
+        // ...otherwise wait a little and try again.
+        setTimeout(StartFirstTest, 100);
       }
   } catch (ex) {
-      ++gTestResults.Exception;
       dumpEx("DEBUG caught exception\n");
       dumpEx("REFTEST TEST-UNEXPECTED-FAIL | | EXCEPTION: " + ex + "\n");
+      ++gTestResults.Exception;
       DoneTests();
   }
 }
@@ -267,9 +304,12 @@ function StartFirstTest() {
 function StartTests()
 {
     try {
+        // The gTestResults object is populated by parsing a JSON
+        // string that appears as an attribute of an element on the
+        // reftest HTML page.
         var bdoc = gParentBrowser.contentDocument;
         var elm = bdoc.getElementById("listen");
-        var attr = elm.getAttribute("extra");
+        var attr = elm.getAttribute("data");
         gTestResults = JSON.parse(attr);
       
         ReadTopManifest(gTestResults.ManifestURL);
@@ -331,7 +371,9 @@ function GetStreamContent(inputStream)
   }
   catch (e)
   {
-    throw("Error: failed reading from stream:\n" + e + "\n");
+    dumpEx("REFTEST TEST-UNEXPECTED-FAIL | | : failed reading from stream:" +
+      e + "\n");
+    DoneTests();
   }
   
   return streamBuf;
@@ -349,7 +391,8 @@ function ReadManifest(manifestURL)
     var inputStream = channel.open();
     if (channel instanceof Components.interfaces.nsIHttpChannel 
       && channel.responseStatus != 200) { 
-      throw "Http error"; 
+      dumpEx("REFTEST TEST-UNEXPECTED-FAIL | | HTTP ERROR : " + 
+        channel.responseStatus + "\n");
     }
     var streamBuf = GetStreamContent(inputStream);
     inputStream.close();
@@ -464,6 +507,9 @@ function ReadManifest(manifestURL)
         }
 
         if (items[0] == "include") {
+            // For 'include' lines, increment the total manifest count, 
+            // then schedule the manifest to be read.  This is done
+            // asynchronously in order to avoid "slow script" warnings.
             if (items.length != 2 || runHttp)
                 throw "Error in manifest file " + manifestURL.spec + " line " + lineNo;
             var incURI = gIOService.newURI(items[1], null, manifestURL);
@@ -576,14 +622,17 @@ function StartCurrentTest()
 
     var currentTest = gTotalTests - gURLs.length;
     if (gURLs.length == 0) {
+        // we're done testing
         dumpEx("DEBUG finished URL list closing tests\n");
         DoneTests();
     }
     else if ((currentTest - gTestResults.ThisChunkStartTest) >=
         gTestResults.ChunkSize) {
+        // we're done testing the current chunk, so send the test
+        // results to the reftest HTML page, and close the reftest window
         gTestResults.ThisChunkStartTest = currentTest;
         gTestResults.TestsContinue = true;
-        sendTestResults();
+        SendTestResults();
         gBrowser.contentWindow.close();
     }
     else {
@@ -652,7 +701,7 @@ function DoneTests()
     function onStopped() {
         dumpEx("REFTEST INFO | Quitting...\n");
         gTestResults.TestsComplete = true;
-        sendTestResults();
+        SendTestResults();
         gBrowser.contentWindow.close();
         //goQuitApplication();
     }
@@ -1019,11 +1068,13 @@ function DocumentLoaded()
             if (!test_passed && expected == EXPECTED_PASS ||
                 test_passed && expected == EXPECTED_FAIL) {
                 if (!equal) {
-                    dumpEx("REFTEST   IMAGE 1 (TEST): " + gCanvas1.toDataURL() + "\n");
-                    dumpEx("REFTEST   IMAGE 2 (REFERENCE): " + gCanvas2.toDataURL() + "\n");
+                    dumpEx("REFTEST FAIL, suppressing image\n");
+                    //dumpEx("REFTEST   IMAGE 1 (TEST): " + gCanvas1.toDataURL() + "\n");
+                    //dumpEx("REFTEST   IMAGE 2 (REFERENCE): " + gCanvas2.toDataURL() + "\n");
                     dumpEx("REFTEST number of differing pixels: " + differences + "\n");
                 } else {
-                    dumpEx("REFTEST   IMAGE: " + gCanvas1.toDataURL() + "\n");
+                    //dumpEx("REFTEST   IMAGE: " + gCanvas1.toDataURL() + "\n");
+                    dumpEx("REFTEST FAIL, suppressing image\n");
                 }
             }
 

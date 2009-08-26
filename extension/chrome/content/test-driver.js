@@ -1,6 +1,7 @@
 const CC = Components.classes;
 const CI = Components.interfaces;
 
+// Default values for gTestResults
 var gDefaults = {
   // Successful...
   Pass: 0,
@@ -24,7 +25,10 @@ var gDefaults = {
   ManifestURL: "",
   ChunkSize: 50,
 };
+// Current test results
 var gTestResults = {};
+// Tracks whether a test is currently being run
+var gIsTesting;
 
 function copyObject(source, dest) {
   for (var prop in source) {
@@ -32,9 +36,16 @@ function copyObject(source, dest) {
   }
 }
 
-function dataeventListener(event){
+/**
+ * This funciton handles the "dataevent" notifications from extension
+ * chrome code.  When this message is received, parse the "data" attribute
+ * of the target element to update the local copy of gTestResults.  If
+ * the tests are marked as complete, reset the gTestResults object to its
+ * initial state, so that it's ready for another reftest to be executed.
+ */
+function dataEventListener(event) {
   var elm = event.target;
-  var data = elm.getAttribute("extra");
+  var data = elm.getAttribute("data");
   gTestResults = JSON.parse(data);
   if (gTestResults.TestsComplete) {
     for (var prop in gTestResults) {
@@ -43,10 +54,8 @@ function dataeventListener(event){
     }
   }
 }
-window.addEventListener("dataevent",dataeventListener,false);
+window.addEventListener("dataevent",dataEventListener,false);
 
-
-var gIsTesting;
 var remoteReftestTestDriver = {
   NextTestChunk: function gtd_nextTestChunk() {
     if (gTestResults.TestsComplete || !gTestResults.TestsContinue) {
@@ -99,7 +108,7 @@ var remoteReftestTestDriver = {
       gTestResults.ThisChunkStartTest = startTest;
       gTestResults.ChunkSize = chunkSize;
       var elm = document.getElementById("listen");
-      elm.setAttribute("extra", JSON.stringify(gTestResults));
+      elm.setAttribute("data", JSON.stringify(gTestResults));
 
       /* Ignore the platform's online/offline status while running 
          reftests. */

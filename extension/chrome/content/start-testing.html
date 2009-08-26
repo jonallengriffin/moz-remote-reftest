@@ -12,9 +12,9 @@
     <div class="container">
       <h1 class="title">Run Remote Reftests</h1>
       <div class="instructions">
-        Choose a manifest file below to run the tests.  You can choose either a
-        crashtest or reftest manifest file.  When ready, click the "Start" button
-        and the tests will begin automatically.
+        Choose a manifest file below to run the tests.  You can choose 
+        either a crashtest or reftest manifest file.  When ready, click 
+        the "Start" button and the tests will begin automatically.
       </div>
       <p>
       <div class="warning" id="dontshow">
@@ -27,10 +27,20 @@
         <input type="text" id="startnumber" size="5" value="0"/>, run
         <input type="text" id="chunks" size="5" value="50"/> tests per chunk.
         <p>
-        <input type="button" value="Start!" onclick="remoteReftestTestDriver.submitForm();"/>
+        <input type="button" value="Start!"
+               onclick="remoteReftestTestDriver.submitForm();"/>
       </div>
     </div>
+    <br>
+    <div class="container">
+    Log: last 10 lines<br>
+    <div id="log"></div>
+    </div>
+    <br>
+    <div class="container">
+    Log: summary
     <div id="results"></div>
+    </div>
     <div id="listen"></div>
   </body>
 </html>
