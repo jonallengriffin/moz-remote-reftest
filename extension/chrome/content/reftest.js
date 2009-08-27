@@ -294,7 +294,6 @@ function StartFirstTest() {
         setTimeout(StartFirstTest, 100);
       }
   } catch (ex) {
-      dumpEx("DEBUG caught exception\n");
       dumpEx("REFTEST TEST-UNEXPECTED-FAIL | | EXCEPTION: " + ex + "\n");
       ++gTestResults.Exception;
       DoneTests();
@@ -315,7 +314,6 @@ function StartTests()
         ReadTopManifest(gTestResults.ManifestURL);
         setTimeout(StartFirstTest, 0);
     } catch (ex) {
-        dumpEx("DEBUG caught exception\n");
         dumpEx("REFTEST TEST-UNEXPECTED-FAIL | | EXCEPTION: " + ex + "\n");
         ++gTestResults.Exception;
         DoneTests();
