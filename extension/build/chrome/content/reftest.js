@@ -135,7 +135,7 @@ var gLogFile = {
 
 function sendTestResults() {
   var elm = gParentBrowser.contentDocument.getElementById("listen");
-  elm.setAttribute("extra", JSON.stringify(gTestResults));
+  elm.setAttribute("data", JSON.stringify(gTestResults));
   var evt = gParentBrowser.contentDocument.createEvent("Events");
   evt.initEvent("dataevent", true, false);
   elm.dispatchEvent(evt);  
@@ -268,7 +268,7 @@ function StartTests()
     try {
         var bdoc = gParentBrowser.contentDocument;
         var elm = bdoc.getElementById("listen");
-        var attr = elm.getAttribute("extra");
+        var attr = elm.getAttribute("data");
         gTestResults = JSON.parse(attr);
       
         ReadTopManifest(gTestResults.ManifestURL);

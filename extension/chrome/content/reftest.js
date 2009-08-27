@@ -612,7 +612,6 @@ function GetUrlBase(fileurl, depth) {
 
 function StartCurrentTest()
 {
-    dumpEx("Starting Test\n");
     // make sure we don't run tests that are expected to kill the browser
     while (gURLs.length > 0 && gURLs[0].expected == EXPECTED_DEATH) {
         ++gTestResults.Skip;
@@ -621,6 +620,7 @@ function StartCurrentTest()
     }
 
     var currentTest = gTotalTests - gURLs.length;
+    dumpEx("Starting Test " + currentTest + " of " + gTotalTests + "\n");
     if (gURLs.length == 0) {
         // we're done testing
         dumpEx("DEBUG finished URL list closing tests\n");

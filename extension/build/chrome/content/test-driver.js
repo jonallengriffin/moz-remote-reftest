@@ -34,7 +34,7 @@ function copyObject(source, dest) {
 
 function dataeventListener(event){
   var elm = event.target;
-  var data = elm.getAttribute("extra");
+  var data = elm.getAttribute("data");
   gTestResults = JSON.parse(data);
   if (gTestResults.TestsComplete) {
     for (var prop in gTestResults) {
@@ -99,7 +99,7 @@ var remoteReftestTestDriver = {
       gTestResults.ThisChunkStartTest = startTest;
       gTestResults.ChunkSize = chunkSize;
       var elm = document.getElementById("listen");
-      elm.setAttribute("extra", JSON.stringify(gTestResults));
+      elm.setAttribute("data", JSON.stringify(gTestResults));
 
       /* Ignore the platform's online/offline status while running 
          reftests. */
