@@ -1066,13 +1066,11 @@ function DocumentLoaded()
             if (!test_passed && expected == EXPECTED_PASS ||
                 test_passed && expected == EXPECTED_FAIL) {
                 if (!equal) {
-                    dumpEx("REFTEST FAIL, suppressing image\n");
-                    //dumpEx("REFTEST   IMAGE 1 (TEST): " + gCanvas1.toDataURL() + "\n");
-                    //dumpEx("REFTEST   IMAGE 2 (REFERENCE): " + gCanvas2.toDataURL() + "\n");
+                    dumpEx("REFTEST   IMAGE 1 (TEST): " + gCanvas1.toDataURL() + "\n");
+                    dumpEx("REFTEST   IMAGE 2 (REFERENCE): " + gCanvas2.toDataURL() + "\n");
                     dumpEx("REFTEST number of differing pixels: " + differences + "\n");
                 } else {
-                    //dumpEx("REFTEST   IMAGE: " + gCanvas1.toDataURL() + "\n");
-                    dumpEx("REFTEST FAIL, suppressing image\n");
+                    dumpEx("REFTEST   IMAGE: " + gCanvas1.toDataURL() + "\n");
                 }
             }
 
